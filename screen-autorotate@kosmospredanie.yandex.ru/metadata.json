@@ -1,0 +1,12 @@
+{
+  "name": "Screen Autorotate",
+  "description": "Auto-rotate screen regardless of touch mode",
+  "url": "https://github.com/kosmospredanie/gnome-shell-extension-screen-autorotate",
+  "uuid": "screen-autorotate@kosmospredanie.yandex.ru",
+  "version": 1,
+  "settings-schema": "org.gnome.shell.extensions.screen-autorotate",
+  "gettext-domain": "gnome-shell-extension-screen-autorotate",
+  "shell-version": [
+    "40"
+  ]
+}
