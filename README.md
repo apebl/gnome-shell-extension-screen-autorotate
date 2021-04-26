@@ -1,6 +1,6 @@
 # Screen Autorotate
 
-A GNOME extension to auto-rotate screen regardless of touch mode.
+A GNOME extension to enable screen rotation regardless of touch mode.
 
 This extension uses Mutter's D-Bus API, so it works on both X11 and Wayland.
 
