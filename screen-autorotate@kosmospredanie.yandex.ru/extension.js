@@ -19,20 +19,18 @@
 'use strict';
 
 const GETTEXT_DOMAIN = 'gnome-shell-extension-screen-autorotate';
-const INDICATOR_ENABLED_ICON = 'rotation-allowed-symbolic';
-const INDICATOR_DISABLED_ICON = 'rotation-locked-symbolic';
+const ORIENTATION_LOCK_SCHEMA = 'org.gnome.settings-daemon.peripherals.touchscreen';
+const ORIENTATION_LOCK_KEY = 'orientation-lock';
 
 const Gettext = imports.gettext.domain(GETTEXT_DOMAIN);
 const _ = Gettext.gettext;
 
-const { GObject, GLib, Gio, St, Clutter } = imports.gi;
+const { GLib, Gio } = imports.gi;
 
 const Main = imports.ui.main;
-const PanelMenu = imports.ui.panelMenu;
+const SystemActions = imports.misc.systemActions;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-
-const ShellUtils = Me.imports.shellUtils;
 
 const Orientation = Object.freeze({
     'normal': 0,
@@ -45,7 +43,7 @@ class SensorProxy {
     constructor(rotate_cb) {
         this._rotate_cb = rotate_cb;
         this._proxy = null;
-        this._enabled = true;
+        this._enabled = false;
         this._watcher_id = Gio.bus_watch_name(
             Gio.BusType.SYSTEM,
             'net.hadess.SensorProxy',
@@ -57,7 +55,7 @@ class SensorProxy {
 
     destroy() {
         Gio.bus_unwatch_name(this._watcher_id);
-        this._enabled = false;
+        if (this._enabled) this.disable();
         this._proxy = null;
     }
 
@@ -91,6 +89,7 @@ class SensorProxy {
     }
 
     properties_changed(proxy, changed, invalidated) {
+        if (!this._enabled) return;
         let properties = changed.deep_unpack();
         for (let [name, value] of Object.entries(properties)) {
             if (name != 'AccelerometerOrientation') continue;
@@ -100,38 +99,58 @@ class SensorProxy {
     }
 }
 
-const Indicator = GObject.registerClass(
-class Indicator extends PanelMenu.Button {
-    _init() {
-        super._init(0.0, _('Screen Autorotate'));
-        this._state = true;
-        ShellUtils.set_orientation_lock(false);
+class ScreenAutorotate {
+    constructor() {
+        this._system_actions = Main.panel.statusArea.aggregateMenu._system._systemActions;
+        this._system_actions_backup = null;
+        this._override_system_actions();
 
-        this._icon = new St.Icon({
-            icon_name: INDICATOR_ENABLED_ICON,
-            style_class: 'system-status-icon'
-        });
-        this.add_child(this._icon);
-        this.connect('button-press-event', this.toggle.bind(this));
-        this.connect('touch-event', (widget, event) => {
-            if (event.type() != Clutter.EventType.TOUCH_BEGIN) return;
-            this.toggle();
-        });
+        this._orientation_settings = new Gio.Settings({ schema_id: ORIENTATION_LOCK_SCHEMA });
+        this._orientation_settings.connect('changed::' + ORIENTATION_LOCK_KEY, this._orientation_lock_changed.bind(this));
 
         this._sensor_proxy = new SensorProxy( this.rotate_to.bind(this) );
+
+        this._state = false; // enabled or not
+        let locked = this._orientation_settings.get_boolean(ORIENTATION_LOCK_KEY);
+        if (!locked) this.enable();
+    }
+
+    _override_system_actions() {
+        this._system_actions_backup = {
+            '_updateOrientationLock': this._system_actions._updateOrientationLock
+        };
+        this._system_actions._updateOrientationLock = function() {
+            this._actions.get(SystemActions.LOCK_ORIENTATION_ACTION_ID).available = true;
+            this.notify('can-lock-orientation');
+        };
+        this._system_actions._updateOrientationLock();
+    }
+
+    _restore_system_actions() {
+        if (this._system_actions_backup === null) return;
+        this._system_actions._updateOrientationLock = this._system_actions_backup['_updateOrientationLock'];
+        this._system_actions._updateOrientationLock();
+        this._system_actions_backup = null;
+    }
+
+    _orientation_lock_changed() {
+        log('Orientation lock changed');
+        let locked = this._orientation_settings.get_boolean(ORIENTATION_LOCK_KEY);
+        if (this._state == locked) {
+            this.toggle();
+        }
     }
 
     destroy() {
         this._sensor_proxy.destroy();
-        super.destroy();
+        this._orientation_settings = null;
+        this._restore_system_actions();
     }
 
     toggle() {
         if (this._state) {
-            Main.notify(_('Screen auto-rotation disabled'));
             this.disable();
         } else {
-            Main.notify(_('Screen auto-rotation enabled'));
             this.enable();
         }
     }
@@ -140,16 +159,12 @@ class Indicator extends PanelMenu.Button {
         log('Enable screen auto-rotation');
         this._sensor_proxy.enable();
         this._state = true;
-        this._icon.icon_name = INDICATOR_ENABLED_ICON;
-        ShellUtils.set_orientation_lock(false);
     }
 
     disable() {
         log('Disable screen auto-rotation');
         this._sensor_proxy.disable();
         this._state = false;
-        this._icon.icon_name = INDICATOR_DISABLED_ICON;
-        ShellUtils.set_orientation_lock(false);
     }
 
     rotate_to(orientation) {
@@ -166,7 +181,7 @@ class Indicator extends PanelMenu.Button {
             logError(err);
         }
     }
-});
+}
 
 class Extension {
     constructor(uuid) {
@@ -175,13 +190,12 @@ class Extension {
     }
 
     enable() {
-        this._indicator = new Indicator();
-        Main.panel.addToStatusArea(this._uuid, this._indicator);
+        this._ext = new ScreenAutorotate();
     }
 
     disable() {
-        this._indicator.destroy();
-        this._indicator = null;
+        this._ext.destroy();
+        this._ext = null;
     }
 }
 
