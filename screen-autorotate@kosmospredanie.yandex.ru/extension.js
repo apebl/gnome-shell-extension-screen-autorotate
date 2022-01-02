@@ -39,6 +39,22 @@ const Orientation = Object.freeze({
     'right-up': 3
 });
 
+
+function getSettings () {
+  let GioSSS = Gio.SettingsSchemaSource;
+  let schemaSource = GioSSS.new_from_directory(
+    Me.dir.get_child("schemas").get_path(),
+    GioSSS.get_default(),
+    false
+  );
+  let schemaObj = schemaSource.lookup(
+    'org.gnome.shell.extensions.screen-autorotate', true);
+  if (!schemaObj) {
+    throw new Error('cannot find schemas');
+  }
+  return new Gio.Settings({ settings_schema : schemaObj });
+}
+
 class SensorProxy {
     constructor(rotate_cb) {
         this._rotate_cb = rotate_cb;
@@ -101,6 +117,7 @@ class SensorProxy {
 
 class ScreenAutorotate {
     constructor() {
+    	this._settings = getSettings();
         this._system_actions = Main.panel.statusArea.aggregateMenu._system._systemActions;
         this._system_actions_backup = null;
         this._override_system_actions();
@@ -170,6 +187,11 @@ class ScreenAutorotate {
     rotate_to(orientation) {
         log('Rotate screen to ' + orientation);
         let target = Orientation[orientation];
+        let reverse_direction = this._settings.get_boolean('flip-rotation-direction');
+        if (reverse_direction) {
+            target = (target * (-1) + 4) % 4;
+        }
+        log('Reverse rotation direction ' + reverse_direction);
         try {
             GLib.spawn_async(
                 Me.path,
