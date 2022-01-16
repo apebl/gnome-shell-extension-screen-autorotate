@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.screen-autorotate"
+    path="/org/gnome/shell/extensions/screen-autorotate/">
+
+    <key type="b" name="flip-rotation-direction">
+      <default>false</default>
+      <summary>summary</summary>
+      <description>rotate screen in oposite direction</description>
+    </key>
+
+  </schema>
+
+</schemalist>
