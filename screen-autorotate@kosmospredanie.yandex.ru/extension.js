@@ -120,8 +120,12 @@ class ScreenAutorotate {
             '_updateOrientationLock': this._system_actions._updateOrientationLock
         };
         this._system_actions._updateOrientationLock = function() {
-            this._actions.get(SystemActions.LOCK_ORIENTATION_ACTION_ID).available = true;
-            this.notify('can-lock-orientation');
+            try {
+                this._actions.get(SystemActions.LOCK_ORIENTATION_ACTION_ID).available = true;
+                this.notify('can-lock-orientation');
+            } catch (error) {
+                log(error)
+            }
         };
         this._system_actions._updateOrientationLock();
     }
