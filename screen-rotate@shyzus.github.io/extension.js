@@ -18,7 +18,7 @@
 
 'use strict';
 
-const GETTEXT_DOMAIN = 'gnome-shell-extension-screen-autorotate';
+const GETTEXT_DOMAIN = 'gnome-shell-extension-screen-rotate';
 const ORIENTATION_LOCK_SCHEMA = 'org.gnome.settings-daemon.peripherals.touchscreen';
 const ORIENTATION_LOCK_KEY = 'orientation-lock';
 
@@ -104,13 +104,13 @@ class ScreenAutorotate {
         this._system_actions = Main.panel.statusArea.aggregateMenu._system._systemActions;
         this._system_actions_backup = null;
         this._override_system_actions();
-
         this._orientation_settings = new Gio.Settings({ schema_id: ORIENTATION_LOCK_SCHEMA });
         this._orientation_settings.connect('changed::' + ORIENTATION_LOCK_KEY, this._orientation_lock_changed.bind(this));
 
         this._sensor_proxy = new SensorProxy( this.rotate_to.bind(this) );
 
         this._state = false; // enabled or not
+
         let locked = this._orientation_settings.get_boolean(ORIENTATION_LOCK_KEY);
         if (!locked) this.enable();
     }
@@ -119,9 +119,15 @@ class ScreenAutorotate {
         this._system_actions_backup = {
             '_updateOrientationLock': this._system_actions._updateOrientationLock
         };
+
         this._system_actions._updateOrientationLock = function() {
-            this._actions.get(SystemActions.LOCK_ORIENTATION_ACTION_ID).available = true;
-            this.notify('can-lock-orientation');
+            if (this._actions.has(SystemActions.LOCK_ORIENTATION_ACTION_ID)) {
+                this._actions.get(SystemActions.LOCK_ORIENTATION_ACTION_ID).available = true;
+                this.notify('can-lock-orientation');
+            } else {
+              console.log("Lock Orientation action not initialized.")
+            }
+
         };
         this._system_actions._updateOrientationLock();
     }
@@ -202,3 +208,7 @@ class Extension {
 function init(meta) {
     return new Extension(meta.uuid);
 }
+
+
+
+
