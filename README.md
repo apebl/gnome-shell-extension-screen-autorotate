@@ -20,7 +20,7 @@ This is a fork of an [existing repository](https://github.com/kosmospredanie/gno
 ### From git
 
 ```
-git clone https://github.com/kosmospredanie/gnome-shell-extension-screen-autorotate.git
+git clone https://github.com/shyzus/gnome-shell-extension-screen-autorotate.git
 cd gnome-shell-extension-screen-autorotate
-cp -r screen-autorotate@kosmospredanie.yandex.ru ~/.local/share/gnome-shell/extensions
+cp -r screen-rotate@shyzus.github.io ~/.local/share/gnome-shell/extensions
 ```
