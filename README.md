@@ -34,7 +34,7 @@ This is a fork of an [existing repository](https://github.com/kosmospredanie/gno
 
 ### From extensions.gnome.org
 
-[GNOME Shell Extensions](https://extensions.gnome.org/extension/4191/screen-autorotate/)
+[GNOME Shell Extensions](https://extensions.gnome.org/extension/5389/screen-rotate/)
 
 ### From git
 
