@@ -30,6 +30,7 @@ const Main = imports.ui.main;
 const SystemActions = imports.misc.systemActions;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
+const Rotator = Me.imports.rotator;
 
 const Orientation = Object.freeze({
     'normal': 0,
@@ -71,7 +72,6 @@ class SensorProxy {
     }
 
     appeared(connection, name, name_owner) {
-        log('Sensor proxy appeared');
         this._proxy = Gio.DBusProxy.new_for_bus_sync(
             Gio.BusType.SYSTEM, Gio.DBusProxyFlags.NONE, null,
             'net.hadess.SensorProxy', '/net/hadess/SensorProxy', 'net.hadess.SensorProxy',
@@ -83,7 +83,6 @@ class SensorProxy {
     }
 
     vanished(connection, name) {
-        log('Sensor proxy vanished');
         this._proxy = null;
     }
 
@@ -120,11 +119,11 @@ class ScreenAutorotate {
         };
 
         this._system_actions._updateOrientationLock = function() {
-            if (this._actions.has(SystemActions.LOCK_ORIENTATION_ACTION_ID)) {
+            try {
                 this._actions.get(SystemActions.LOCK_ORIENTATION_ACTION_ID).available = true;
                 this.notify('can-lock-orientation');
-            } else {
-              console.log("Lock Orientation action not initialized.")
+            } catch (err) {
+                logError(err, "Lock Orientation action not initialized.")
             }
 
         };
@@ -139,7 +138,6 @@ class ScreenAutorotate {
     }
 
     _orientation_lock_changed() {
-        log('Orientation lock changed');
         let locked = this._orientation_settings.get_boolean(ORIENTATION_LOCK_KEY);
         if (this._state == locked) {
             this.toggle();
@@ -161,30 +159,18 @@ class ScreenAutorotate {
     }
 
     enable() {
-        log('Enable screen auto-rotation');
         this._sensor_proxy.enable();
         this._state = true;
     }
 
     disable() {
-        log('Disable screen auto-rotation');
         this._sensor_proxy.disable();
         this._state = false;
     }
 
     rotate_to(orientation) {
-        log('Rotate screen to ' + orientation);
         let target = Orientation[orientation];
-        try {
-            GLib.spawn_async(
-                Me.path,
-                ['gjs', `${Me.path}/rotator.js`, `${target}`],
-                null,
-                GLib.SpawnFlags.SEARCH_PATH,
-                null);
-        } catch (err) {
-            logError(err);
-        }
+        Rotator.rotate_to(target);
     }
 }
 

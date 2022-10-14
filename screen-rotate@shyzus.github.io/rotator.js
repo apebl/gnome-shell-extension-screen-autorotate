@@ -1,7 +1,6 @@
-#!/usr/bin/env gjs
 /* rotator.js
 *
-* Copyright (C) 2022  kosmospredanie
+* Copyright (C) 2022  kosmospredanie, shyzus
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -19,38 +18,63 @@
 
 'use strict';
 
-const { Gio } = imports.gi;
+const { Gio, GLib } = imports.gi;
 
-imports.searchPath.unshift('.');
-const BusUtils = imports.busUtils;
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+const BusUtils = Me.imports.busUtils;
+const connection = Gio.DBus.session;
 
-function call_dbus_method(method, params = null) {
-    let connection = Gio.bus_get_sync(Gio.BusType.SESSION, null);
-    return connection.call_sync(
-        'org.gnome.Mutter.DisplayConfig',
-        '/org/gnome/Mutter/DisplayConfig',
-        'org.gnome.Mutter.DisplayConfig',
-        method,
-        params,
-        null,
-        Gio.DBusCallFlags.NONE,
-        -1,
-        null);
+function call_dbus_method(method, params = null, handler) {
+    if (handler != undefined || handler != null) {
+        connection.call(
+            'org.gnome.Mutter.DisplayConfig',
+            '/org/gnome/Mutter/DisplayConfig',
+            'org.gnome.Mutter.DisplayConfig',
+            method,
+            params,
+            null,
+            Gio.DBusCallFlags.NONE,
+            -1,
+            null, handler);
+    } else {
+        connection.call(
+            'org.gnome.Mutter.DisplayConfig',
+            '/org/gnome/Mutter/DisplayConfig',
+            'org.gnome.Mutter.DisplayConfig',
+            method,
+            params,
+            null,
+            Gio.DBusCallFlags.NONE,
+            -1,
+            null);
+    }
+    
 }
 
 function get_state() {
-    let result = call_dbus_method('GetCurrentState');
-    return new BusUtils.DisplayConfigState(result);
+    return new Promise((resolve, reject) => {
+        call_dbus_method('GetCurrentState', null, (connection, res) => {
+            try {
+                let reply = connection.call_finish(res);
+                let configState = new BusUtils.DisplayConfigState(reply)
+                resolve(configState);
+            } catch(err) {
+                reject(err);
+            }
+            
+        });
+    })
 }
 
 function rotate_to(transform) {
-    let state = this.get_state();
-    let builtin_monitor = state.builtin_monitor;
-    let logical_monitor = state.get_logical_monitor_for(builtin_monitor.connector);
-    logical_monitor.transform = transform;
-    let variant = state.pack_to_apply( BusUtils.Methods['temporary'] );
-    call_dbus_method('ApplyMonitorsConfig', variant);
+    this.get_state().then( state => {
+        let builtin_monitor = state.builtin_monitor;
+        let logical_monitor = state.get_logical_monitor_for(builtin_monitor.connector);
+        logical_monitor.transform = transform;
+        let variant = state.pack_to_apply( BusUtils.Methods['temporary'] );
+        call_dbus_method('ApplyMonitorsConfig', variant);
+    }).catch(err => {
+        logError(err);
+    })
 }
-
-let target = parseInt(ARGV[0]);
-rotate_to(target);
