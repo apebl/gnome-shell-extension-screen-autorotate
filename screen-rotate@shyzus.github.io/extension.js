@@ -31,6 +31,9 @@ const SystemActions = imports.misc.systemActions;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Rotator = Me.imports.rotator;
+const Config = imports.misc.config;
+const [major] = Config.PACKAGE_VERSION.split('.');
+const shellVersion = Number.parseInt(major);
 
 const Orientation = Object.freeze({
     'normal': 0,
@@ -99,7 +102,12 @@ class SensorProxy {
 
 class ScreenAutorotate {
     constructor() {
-        this._system_actions = Main.panel.statusArea.aggregateMenu._system._systemActions;
+        if (shellVersion < 42) {
+            this._system_actions = Main.panel.statusArea.aggregateMenu._system._systemActions;
+        }
+        else {
+            this._system_actions = Main.panel.statusArea.quickSettings;
+        }
         this._system_actions_backup = null;
         this._override_system_actions();
         this._orientation_settings = new Gio.Settings({ schema_id: ORIENTATION_LOCK_SCHEMA });
