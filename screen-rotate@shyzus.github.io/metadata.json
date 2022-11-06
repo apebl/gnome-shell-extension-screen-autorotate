@@ -6,9 +6,11 @@
   "version": 4,
   "settings-schema": "org.gnome.shell.extensions.screen-rotate",
   "gettext-domain": "gnome-shell-extension-screen-rotate",
+  "session-modes": ["user", "unlock-dialog"],
   "shell-version": [
     "40",
     "41",
-    "42"
+    "42",
+    "43"
   ]
 }
