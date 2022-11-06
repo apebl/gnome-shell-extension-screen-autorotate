@@ -42,6 +42,8 @@ const Orientation = Object.freeze({
     'right-up': 3
 });
 
+var interval = null;
+
 class SensorProxy {
     constructor(rotate_cb) {
         this._rotate_cb = rotate_cb;
@@ -125,7 +127,7 @@ class ScreenAutorotate {
 
             let intervalCounter = 0;
 
-            let interval = setInterval(() => {
+            interval = setInterval(() => {
 
                 if( this._actions.has(SystemActions.LOCK_ORIENTATION_ACTION_ID)){
                     try {
@@ -165,6 +167,7 @@ class ScreenAutorotate {
         this._sensor_proxy.destroy();
         this._orientation_settings = null;
         this._restore_system_actions();
+        interval = null;
     }
 
     toggle() {
@@ -202,6 +205,13 @@ class Extension {
     }
 
     disable() {
+        /*
+            Comment for unlock-dialog usage:
+            The unlock-dialog sesson-mode is usefull for this extension as it allows
+            the user to rotate their screen or lock rotation after their device may
+            have auto-locked. This provides the ability to log back in regardless of 
+            the orientation of the device in tablet mode.
+        */
         this._ext.destroy();
         this._ext = null;
     }
