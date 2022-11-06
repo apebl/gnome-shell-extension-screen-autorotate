@@ -102,12 +102,7 @@ class SensorProxy {
 
 class ScreenAutorotate {
     constructor() {
-        if (shellVersion < 42) {
-            this._system_actions = Main.panel.statusArea.aggregateMenu._system._systemActions;
-        }
-        else {
-            this._system_actions = Main.panel.statusArea.quickSettings;
-        }
+        this._system_actions = new SystemActions.getDefault();
         this._system_actions_backup = null;
         this._override_system_actions();
         this._orientation_settings = new Gio.Settings({ schema_id: ORIENTATION_LOCK_SCHEMA });
@@ -127,14 +122,28 @@ class ScreenAutorotate {
         };
 
         this._system_actions._updateOrientationLock = function() {
-            try {
-                this._actions.get(SystemActions.LOCK_ORIENTATION_ACTION_ID).available = true;
-                this.notify('can-lock-orientation');
-            } catch (err) {
-                logError(err, "Lock Orientation action not initialized.")
-            }
+
+            let intervalCounter = 0;
+
+            let interval = setInterval(() => {
+
+                if( this._actions.has(SystemActions.LOCK_ORIENTATION_ACTION_ID)){
+                    try {
+                        this._actions.get(SystemActions.LOCK_ORIENTATION_ACTION_ID).available = true;
+                        this.notify('can-lock-orientation');
+                        clearInterval(interval);
+                    } catch (err) {
+                        logError(err, "Lock Orientation action not initialized.")
+                    }
+                } else if(intervalCounter > 10) {
+                    clearInterval(interval);
+                    logError(new Error("Maximum orientation-lock action interval reached."), "Failed to find orientation-lock action!");
+                }
+                intervalCounter++;
+            }, 1000)
 
         };
+        
         this._system_actions._updateOrientationLock();
     }
 
