@@ -167,6 +167,7 @@ class ScreenAutorotate {
         this._sensor_proxy.destroy();
         this._orientation_settings = null;
         this._restore_system_actions();
+        clearInterval(interval);
         interval = null;
     }
 
