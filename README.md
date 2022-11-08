@@ -1,4 +1,4 @@
-# Screen Autorotate
+# Screen Rotate
 
 A GNOME extension to enable screen rotation regardless of touch mode.
 

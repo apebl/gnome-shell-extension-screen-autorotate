@@ -1,5 +1,5 @@
 /* extension.js
-* Copyright (C) 2022  kosmospredanie, shyzus
+* Copyright (C) 2022  kosmospredanie, shyzus, Shinigaminai
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ function getSettings () {
     false
   );
   let schemaObj = schemaSource.lookup(
-    'org.gnome.shell.extensions.screen-autorotate', true);
+    'org.gnome.shell.extensions.screen-rotate', true);
   if (!schemaObj) {
     throw new Error('cannot find schemas');
   }
@@ -120,8 +120,8 @@ class SensorProxy {
 
 class ScreenAutorotate {
     constructor() {
-    	this._settings = getSettings();
         this._system_actions = new SystemActions.getDefault();
+    	this._settings = getSettings();
         this._system_actions_backup = null;
         this._override_system_actions();
         this._orientation_settings = new Gio.Settings({ schema_id: ORIENTATION_LOCK_SCHEMA });
@@ -195,7 +195,6 @@ class ScreenAutorotate {
             this.enable();
         }
     }
-
     enable() {
         this._sensor_proxy.enable();
         this._state = true;

@@ -1,3 +1,20 @@
+/* prefs.js
+* Copyright (C) 2022  kosmospredanie, shyzus, Shinigaminai
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 const GObject = imports.gi.GObject;
 const Gtk = imports.gi.Gtk;
 const Gio = imports.gi.Gio;
@@ -6,7 +23,6 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 function getSettings () {
-  log('loading settings');
   let GioSSS = Gio.SettingsSchemaSource;
   let schemaSource = GioSSS.new_from_directory(
     Me.dir.get_child("schemas").get_path(),
@@ -14,7 +30,7 @@ function getSettings () {
     false
   );
   let schemaObj = schemaSource.lookup(
-    'org.gnome.shell.extensions.screen-autorotate', true);
+    'org.gnome.shell.extensions.screen-rotate', true);
   if (!schemaObj) {
     throw new Error('cannot find schemas');
   }
@@ -64,10 +80,10 @@ function buildPrefsWidget () {
   this.settings.bind('flip-rotation-direction', this.flipRotationSwitch,
     'active', Gio.SettingsBindFlags.DEFAULT,
   );
-  this.flipRotationSwitch.connect("notify::active", function (w) {
-      log(w.get_active());
-      //settings.set_boolean(w.get_active())
-  });
+  // this.flipRotationSwitch.connect("notify::active", function (w) {
+  //     log(w.get_active());
+  //     //settings.set_boolean(w.get_active())
+  // });
 
   // Return our widget which will be added to the window
   return prefsWidget;
