@@ -22,25 +22,10 @@ const Gio = imports.gi.Gio;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-function getSettings () {
-  let GioSSS = Gio.SettingsSchemaSource;
-  let schemaSource = GioSSS.new_from_directory(
-    Me.dir.get_child("schemas").get_path(),
-    GioSSS.get_default(),
-    false
-  );
-  let schemaObj = schemaSource.lookup(
-    'org.gnome.shell.extensions.screen-rotate', true);
-  if (!schemaObj) {
-    throw new Error('cannot find schemas');
-  }
-  return new Gio.Settings({ settings_schema : schemaObj });
-}
-
 function init () {}
 
 function buildPrefsWidget () {
-  this.settings = getSettings();
+  this.settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.screen-rotate');
 
     // Create a parent widget that we'll return from this function
   const prefsWidget = new Gtk.Grid({
