@@ -44,22 +44,6 @@ const Orientation = Object.freeze({
 
 var interval = null;
 
-
-function getSettings () {
-  let GioSSS = Gio.SettingsSchemaSource;
-  let schemaSource = GioSSS.new_from_directory(
-    Me.dir.get_child("schemas").get_path(),
-    GioSSS.get_default(),
-    false
-  );
-  let schemaObj = schemaSource.lookup(
-    'org.gnome.shell.extensions.screen-rotate', true);
-  if (!schemaObj) {
-    throw new Error('cannot find schemas');
-  }
-  return new Gio.Settings({ settings_schema : schemaObj });
-}
-
 class SensorProxy {
     constructor(rotate_cb) {
         this._rotate_cb = rotate_cb;
@@ -121,7 +105,7 @@ class SensorProxy {
 class ScreenAutorotate {
     constructor() {
         this._system_actions = new SystemActions.getDefault();
-    	this._settings = getSettings();
+    	this._settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.screen-rotate');
         this._system_actions_backup = null;
         this._override_system_actions();
         this._orientation_settings = new Gio.Settings({ schema_id: ORIENTATION_LOCK_SCHEMA });
