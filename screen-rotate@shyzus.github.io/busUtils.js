@@ -1,6 +1,6 @@
 /* busUtils.js
 *
-* Copyright (C) 2022  kosmospredanie
+* Copyright (C) 2022  kosmospredanie, efosmark
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -36,10 +36,12 @@ var Monitor = class Monitor {
             let mode = modes[i].unpack();
             let id = mode[0].unpack();
             let mode_props = mode[6].unpack();
-            let is_current = mode_props['is-current'].unpack().get_boolean();
-            if (is_current) {
-                this.current_mode_id = id;
-                break;
+            if ('is-current' in mode_props) {
+                let is_current = mode_props['is-current'].unpack().get_boolean();
+                if (is_current) {
+                    this.current_mode_id = id;
+                    break;
+                }
             }
         }
 
