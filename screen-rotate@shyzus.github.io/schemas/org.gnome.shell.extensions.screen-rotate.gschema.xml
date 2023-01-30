@@ -21,10 +21,15 @@
   <schema id="org.gnome.shell.extensions.screen-rotate"
     path="/org/gnome/shell/extensions/screen-rotate/">
 
-    <key type="b" name="flip-rotation-direction">
+    <key type="b" name="flip-horizontal-rotation-direction">
       <default>false</default>
       <summary>summary</summary>
-      <description>rotate screen in oposite direction</description>
+      <description>Invert horizontal rotation direction of the screen</description>
+    </key>
+    <key type="b" name="flip-vertical-rotation-direction">
+      <default>false</default>
+      <summary>summary</summary>
+      <description>Invert vertical rotation direction of the screen</description>
     </key>
 
   </schema>

@@ -47,28 +47,43 @@ function buildPrefsWidget () {
   });
   prefsWidget.attach(title, 0, 0, 2, 1);
 
-  // Create a label & switch for `flip-rotation-direction`
-  const flipRotationLabel = new Gtk.Label({
-    label: 'Flip orientation rotation direction:',
+  // Create a label & switch for `flip-rotation-direction-horizontal`
+  const flipRotationHorizontalLabel = new Gtk.Label({
+    label: 'Invert horizontal rotation:',
     halign: Gtk.Align.START,
     visible: true,
   });
-  prefsWidget.attach(flipRotationLabel, 0, 1, 1, 1);
+  // Create a label & switch for `flip-rotation-direction-vertical`
+  const flipRotationVerticalLabel = new Gtk.Label({
+    label: 'Invert vertical rotation:',
+    halign: Gtk.Align.START,
+    visible: true,
+  });
+  prefsWidget.attach(flipRotationHorizontalLabel, 0, 1, 1, 1);
+  prefsWidget.attach(flipRotationVerticalLabel, 0, 2, 1, 1);
 
-  this.flipRotationSwitch = new Gtk.Switch({
+  this.flipHorizontalRotationSwitch = new Gtk.Switch({
     halign: Gtk.Align.END,
     visible: true,
   });
-  prefsWidget.attach(this.flipRotationSwitch, 1, 1, 1, 1);
 
-  // Bind the switch to the `flip-rotation-direction` key
-  this.settings.bind('flip-rotation-direction', this.flipRotationSwitch,
+  this.flipVerticalRotationSwitch = new Gtk.Switch({
+    halign: Gtk.Align.END,
+    visible: true,
+  });
+
+  prefsWidget.attach(this.flipHorizontalRotationSwitch, 1, 1, 1, 1);
+  prefsWidget.attach(this.flipVerticalRotationSwitch, 1, 2, 1, 1);
+
+  // Bind the switch to the `flip-horizontal-rotation-direction` key
+  this.settings.bind('flip-horizontal-rotation-direction', this.flipHorizontalRotationSwitch,
     'active', Gio.SettingsBindFlags.DEFAULT,
   );
-  // this.flipRotationSwitch.connect("notify::active", function (w) {
-  //     log(w.get_active());
-  //     //settings.set_boolean(w.get_active())
-  // });
+
+  // Bind the switch to the `flip-horizontal-rotation-direction` key
+  this.settings.bind('flip-vertical-rotation-direction', this.flipVerticalRotationSwitch,
+  'active', Gio.SettingsBindFlags.DEFAULT,
+);
 
   // Return our widget which will be added to the window
   return prefsWidget;
