@@ -190,11 +190,27 @@ class ScreenAutorotate {
     }
 
     rotate_to(orientation) {
-        let target = Orientation[orientation];
-        let reverse_direction = this._settings.get_boolean('flip-rotation-direction');
-        if (reverse_direction) {
-            target = (target * (-1) + 4) % 4;
+        const sensor_output = Orientation[orientation];
+        let target = sensor_output;
+        let reverse_horizontal_direction = this._settings.get_boolean('flip-horizontal-rotation-direction');
+        let reverse_vertical_direction = this._settings.get_boolean('flip-vertical-rotation-direction');
+
+        if (reverse_horizontal_direction) {
+            if (sensor_output == 3) {
+                target = 1;
+            } else if(sensor_output == 1) {
+                target = 3;
+            }
         }
+
+        if (reverse_vertical_direction) {
+            if (sensor_output == 0) {
+                target = 2;
+            } else if(sensor_output == 2) {
+                target = 0;
+            }
+        }
+
         Rotator.rotate_to(target);
     }
 }
