@@ -105,7 +105,7 @@ class SensorProxy {
 class ScreenAutorotate {
     constructor() {
         this._system_actions = new SystemActions.getDefault();
-    	this._settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.screen-rotate');
+        this._settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.screen-rotate');
         this._system_actions_backup = null;
         this._override_system_actions();
         this._orientation_settings = new Gio.Settings({ schema_id: ORIENTATION_LOCK_SCHEMA });
@@ -190,27 +190,49 @@ class ScreenAutorotate {
     }
 
     rotate_to(orientation) {
-        const sensor_output = Orientation[orientation];
+        /*
+            Assuming landscape orientation.
+            (sensor starts from 0. +1 is added for math convenience.)
+            Orientation values: 
+            See line 38.
+        */
+        let offset = 1;
+        const sensor_output = (Orientation[orientation] + offset) % 4;
+        let sensor = sensor_output + 1; 
         let target = sensor_output;
         let reverse_horizontal_direction = this._settings.get_boolean('flip-horizontal-rotation-direction');
         let reverse_vertical_direction = this._settings.get_boolean('flip-vertical-rotation-direction');
+        let flip_orientation = this._settings.get_boolean('flip-orientation');
 
-        if (reverse_horizontal_direction) {
-            if (sensor_output == 3) {
-                target = 1;
-            } else if(sensor_output == 1) {
-                target = 3;
+        // This means it is horizontal,
+        if (sensor % 2 == 0) {
+
+            if (reverse_horizontal_direction) {
+                if (sensor == 4) {
+                    offset -= 2;
+                } else if(sensor == 2) {
+                    offset += 2;
+                }
+            }
+
+        } else {
+            // It has to be vertical.
+            if (reverse_vertical_direction) {
+                if (sensor == 1) {
+                    offset += 2;
+                } else if(sensor == 3) {
+                    offset -= 2;
+                }
             }
         }
 
-        if (reverse_vertical_direction) {
-            if (sensor_output == 0) {
-                target = 2;
-            } else if(sensor_output == 2) {
-                target = 0;
-            }
+
+        // Default becomes 2
+        if (flip_orientation) {
+            offset += 1
         }
 
+        target += offset;
         Rotator.rotate_to(target);
     }
 }
