@@ -1,5 +1,5 @@
 /* extension.js
-* Copyright (C) 2023  kosmospredanie, shyzus, Shinigaminai
+* Copyright (C) 2024  kosmospredanie, shyzus, Shinigaminai
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -15,16 +15,21 @@
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
+import { Extension, gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import Gio from 'gi://Gio';
+import GObject from 'gi://GObject';
+import GLib from 'gi://GLib';
 
 import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.js';
-
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Rotator from './rotator.js'
+import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 const ORIENTATION_LOCK_SCHEMA = 'org.gnome.settings-daemon.peripherals.touchscreen';
 const ORIENTATION_LOCK_KEY = 'orientation-lock';
+
+import { QuickMenuToggle, QuickSettingsMenu, SystemIndicator } from 'resource:///org/gnome/shell/ui/quickSettings.js';
 
 // Orientation names must match those provided by net.hadess.SensorProxy
 const Orientation = Object.freeze({
@@ -32,6 +37,100 @@ const Orientation = Object.freeze({
   'left-up': 1,
   'bottom-up': 2,
   'right-up': 3
+});
+
+const ManualOrientationIndicator = GObject.registerClass(
+class ManualOrientationIndicator extends SystemIndicator {
+    _init(ext_ref) {
+        super._init();
+        this.toggle = new ManualOrientationMenuToggle(ext_ref);
+        this.quickSettingsItems.push(this.toggle);
+    }
+
+    destroy() {
+      this.quickSettingsItems.pop(this.toggle);
+      this.toggle.destroy();
+    }
+});
+
+const ManualOrientationMenuToggle = GObject.registerClass(
+class ManualOrientationMenuToggle extends QuickMenuToggle {
+    _init(ext) {
+      super._init({
+        title: _('Rotate'),
+        iconName: 'object-rotate-left-symbolic',
+        menuEnabled: true,
+        toggleMode: true,
+      });
+
+      this.menu.setHeader('object-rotate-left-symbolic', _('Screen Rotate'));
+
+      this._section = new PopupMenu.PopupMenuSection();
+      this.menu.addMenuItem(this._section);
+
+      this.landscapeItem = new PopupMenu.PopupMenuItem('Landscape', {
+        reactive: true,
+        can_focus: true,
+      });
+
+      this.portraitLeftItem = new PopupMenu.PopupMenuItem('Portrait Left', {
+        reactive: true,
+        can_focus: true,
+      });
+
+      this.landscapeFlipItem = new PopupMenu.PopupMenuItem('Landscape Flipped', {
+        reactive: true,
+        can_focus: true,
+      });
+
+      this.portraitRightItem = new PopupMenu.PopupMenuItem('Portrait Right', {
+        reactive: true,
+        can_focus: true,
+      });
+
+      this.landscapeItem.connect('activate', () => {
+        this._onItemActivate(this.landscapeItem);
+        ext.rotate_to('normal');
+      });
+      this.portraitLeftItem.connect('activate', () => {
+        this._onItemActivate(this.portraitLeftItem);
+        ext.rotate_to('left-up');
+      });
+      this.landscapeFlipItem.connect('activate', () => {
+        this._onItemActivate(this.landscapeFlipItem);
+        ext.rotate_to('bottom-up');
+      });
+      this.portraitRightItem.connect('activate', () => {
+        this._onItemActivate(this.portraitRightItem);
+        ext.rotate_to('right-up');
+      });
+
+      this._section.addMenuItem(this.landscapeItem);
+      this._section.addMenuItem(this.portraitLeftItem);
+      this._section.addMenuItem(this.landscapeFlipItem);
+      this._section.addMenuItem(this.portraitRightItem);
+
+      this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+      this.menu.addSettingsAction(_('Extension Settings'),
+            'com.mattjakeman.ExtensionManager.desktop');
+
+      this.connect('clicked', () => {
+        if (this.checked == true) {
+            ext.rotate_to('right-up');
+        } else {
+            ext.rotate_to('normal');
+        }
+      });
+    }
+
+    _onItemActivate(item) {
+      this.landscapeItem.setOrnament(PopupMenu.Ornament.HIDDEN);
+      this.portraitLeftItem.setOrnament(PopupMenu.Ornament.HIDDEN);
+      this.landscapeFlipItem.setOrnament(PopupMenu.Ornament.HIDDEN);
+      this.portraitRightItem.setOrnament(PopupMenu.Ornament.HIDDEN);
+
+      item.setOrnament(PopupMenu.Ornament.CHECK);
+    }
 });
 
 class SensorProxy {
@@ -207,17 +306,72 @@ export default class ScreenAutoRotateExtension extends Extension {
   enable() {
     this._settings = this.getSettings();
     this._ext = new ScreenAutorotate(this._settings);
+
+    this._settings.connect('changed::manual-flip', (settings, key) => {
+      if (settings.get_boolean(key)) {
+        this._add_manual_flip();
+      } else {
+        this._remove_manual_flip();
+      }
+    });
+
+    this._settings.connect('changed::hide-lock-rotate', (settings, key) => {
+      this._set_hide_lock_rotate(settings.get_boolean(key));
+    });
+
+    if (this._settings.get_boolean('manual-flip')) {
+      this._add_manual_flip();
+    } else {
+      this._remove_manual_flip();
+    }
+
+    /* Timeout needed due to unknown race condition causing 'Auto Rotate'
+    *  Quick Toggle to be undefined for a brief moment.
+    */
+    this._timeoutId = setTimeout(() => {
+      this._set_hide_lock_rotate(this._settings.get_boolean('hide-lock-rotate'));
+    }, 1000);
+  }
+
+  _set_hide_lock_rotate(state) {
+    const children = Main.panel.statusArea.quickSettings.menu._grid.get_children();
+    const rotation_lock = children.find((child) => {
+      return child.icon_name == "rotation-locked-symbolic" || child.icon_name == "rotation-allowed-symbolic"
+    });
+
+    if (rotation_lock) {
+      if (state) {
+        rotation_lock.hide();
+      } else {
+        rotation_lock.show();
+      }
+    }
+  }
+
+  _add_manual_flip() {
+    this.flipIndicator = new ManualOrientationIndicator(this._ext);
+    Main.panel.statusArea.quickSettings.addExternalIndicator(this.flipIndicator);
+  }
+
+  _remove_manual_flip() {
+    if (this.flipIndicator != null) {
+      this.flipIndicator.destroy();
+      this.flipIndicator = null;
+    }
   }
 
   disable() {
     /*
         Comment for unlock-dialog usage:
-        The unlock-dialog sesson-mode is usefull for this extension as it allows
+        The unlock-dialog session-mode is useful for this extension as it allows
         the user to rotate their screen or lock rotation after their device may
         have auto-locked. This provides the ability to log back in regardless of 
         the orientation of the device in tablet mode.
     */
     this._settings = null;
+    clearTimeout(this._timeoutId);
+    this._timeoutId = null;
+    this._remove_manual_flip();
     this._ext.destroy();
     this._ext = null;
   }

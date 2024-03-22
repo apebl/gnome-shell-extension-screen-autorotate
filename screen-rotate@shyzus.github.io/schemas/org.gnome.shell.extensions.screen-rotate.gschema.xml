@@ -1,6 +1,6 @@
 <!-- 
 -    org.gnome.shell.extensions.screen-rotate.gschema.xml
-- Copyright (C) 2023 shyzus, Shinigaminai
+- Copyright (C) 2024 shyzus, Shinigaminai
 -
 - This program is free software: you can redistribute it and/or modify
 - it under the terms of the GNU General Public License as published by
@@ -36,6 +36,13 @@
     <key type="i" name="orientation-offset">
       <default>0</default>
       <description>Experiment with this offset in case orientation is incorrect.</description>
+    </key>
+    <key type="b" name="manual-flip">
+      <default>false</default>
+      <description>Enable a toggle in the GNOME Shell System Menu to manually flip between landscape and portrait.</description>
+    </key><key type="b" name="hide-lock-rotate">
+      <default>false</default>
+      <description>Hide the 'Auto Rotate' quick toggle.</description>
     </key>
     <key type="b" name="debug-logging">
       <default>false</default>
