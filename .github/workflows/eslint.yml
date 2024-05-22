@@ -2,7 +2,7 @@ name: ESLint
 
 on:
   push:
-    branches: [ 'main' ]
+    branches: [ 'main', '30-improve-code-quality-and-maintainability' ]
   pull_request:
     branches: [ 'main' ]
   schedule:
