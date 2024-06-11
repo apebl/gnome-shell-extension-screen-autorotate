@@ -16,6 +16,7 @@
 */
 
 import GObject from 'gi://GObject';
+
 import { QuickMenuToggle } from 'resource:///org/gnome/shell/ui/quickSettings.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 

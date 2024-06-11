@@ -15,14 +15,13 @@
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Extension, gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
-
 import Gio from 'gi://Gio';
 
-import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.js';
+import { Extension, gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import * as Rotator from './rotator.js'
+import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.js';
 
+import * as Rotator from './rotator.js'
 import { Orientation } from './orientation.js';
 import { ManualOrientationIndicator } from './manualOrientationIndicator.js';
 import { SensorProxy } from './sensorProxy.js';

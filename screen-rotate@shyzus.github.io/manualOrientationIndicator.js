@@ -16,7 +16,9 @@
 */
 
 import GObject from 'gi://GObject';
+
 import { SystemIndicator } from 'resource:///org/gnome/shell/ui/quickSettings.js';
+
 import { ManualOrientationMenuToggle } from './manualOrientationMenuToggle.js';
 
 export const ManualOrientationIndicator = GObject.registerClass(

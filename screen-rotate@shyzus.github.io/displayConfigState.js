@@ -17,6 +17,7 @@
 */
 
 import GLib from 'gi://GLib';
+
 import { Monitor } from './monitor.js'
 import { LogicalMonitor } from './logicalMonitor.js'
 

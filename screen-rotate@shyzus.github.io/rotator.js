@@ -18,6 +18,7 @@
 import Gio from 'gi://Gio';
 
 import { DisplayConfigState } from './displayConfigState.js'
+
 const connection = Gio.DBus.session;
 
 export const Methods = Object.freeze({
