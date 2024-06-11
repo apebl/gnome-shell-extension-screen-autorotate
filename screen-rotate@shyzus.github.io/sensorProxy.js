@@ -49,7 +49,7 @@ export class SensorProxy {
     this._proxy.call_sync('ReleaseAccelerometer', null, Gio.DBusCallFlags.NONE, -1, null);
   }
 
-  appeared(_connection, _name, name_owner) {
+  appeared(_connection, _name, _name_owner) {
     this._proxy = Gio.DBusProxy.new_for_bus_sync(
       Gio.BusType.SYSTEM, Gio.DBusProxyFlags.NONE, null,
       'net.hadess.SensorProxy', '/net/hadess/SensorProxy', 'net.hadess.SensorProxy',
