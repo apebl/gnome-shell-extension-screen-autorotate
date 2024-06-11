@@ -77,7 +77,7 @@ class ManualOrientationMenuToggle extends QuickMenuToggle {
       this._section.addMenuItem(this.portraitRightItem);
 
       this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-      this.menu.addSettingsAction(_('Extension Settings'),
+      this.menu.addSettingsAction('Extension Settings',
             'com.mattjakeman.ExtensionManager.desktop');
 
       this.connect('clicked', () => {
