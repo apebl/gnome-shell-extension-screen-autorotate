@@ -81,7 +81,7 @@ class ManualOrientationMenuToggle extends QuickMenuToggle {
             'com.mattjakeman.ExtensionManager.desktop');
 
       this.connect('clicked', () => {
-        if (this.checked == true) {
+        if (this.checked === true) {
             ext.rotate_to('right-up');
         } else {
             ext.rotate_to('normal');
