@@ -60,7 +60,7 @@ export class SensorProxy {
     }
   }
 
-  vanished(_connection, name) {
+  vanished(_connection, _name) {
     this._proxy = null;
   }
 
