@@ -17,8 +17,14 @@
 */
 import Gio from 'gi://Gio';
 
-import * as BusUtils from './busUtils.js';
+import { DisplayConfigState } from './displayConfigState.js'
 const connection = Gio.DBus.session;
+
+export const Methods = Object.freeze({
+  'verify': 0,
+  'temporary': 1,
+  'persistent': 2
+});
 
 export function call_dbus_method(method, params = null, handler) {
   if (handler != undefined || handler != null) {
@@ -52,7 +58,7 @@ export function get_state() {
     call_dbus_method('GetCurrentState', null, (connection, res) => {
       try {
         let reply = connection.call_finish(res);
-        let configState = new BusUtils.DisplayConfigState(reply)
+        let configState = new DisplayConfigState(reply)
         resolve(configState);
       } catch (err) {
         reject(err);
@@ -70,7 +76,7 @@ export function rotate_to(transform) {
     }
     let logical_monitor = state.get_logical_monitor_for(target_monitor.connector);
     logical_monitor.transform = transform;
-    let variant = state.pack_to_apply(BusUtils.Methods['temporary']);
+    let variant = state.pack_to_apply(this.Methods['temporary']);
     call_dbus_method('ApplyMonitorsConfig', variant);
   }).catch(err => {
     console.error(err);

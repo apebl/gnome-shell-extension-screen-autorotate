@@ -1,6 +1,6 @@
-/* busUtils.js
+/* displayConfigState.js
 *
-* Copyright (C) 2022  kosmospredanie, efosmark
+* Copyright (C) 2024  kosmospredanie, shyzus
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -18,64 +18,10 @@
 
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
+import { Monitor } from './monitor.js'
+import { LogicalMonitor } from './logicalMonitor.js'
 
-export const Methods = Object.freeze({
-  'verify': 0,
-  'temporary': 1,
-  'persistent': 2
-});
-
-export const Monitor = class Monitor {
-  constructor(variant) {
-    let unpacked = variant.unpack();
-    this.connector = unpacked[0].unpack()[0].unpack();
-
-    let modes = unpacked[1].unpack();
-    for (let i = 0; i < modes.length; i++) {
-      let mode = modes[i].unpack();
-      let id = mode[0].unpack();
-      let mode_props = mode[6].unpack();
-      if ('is-current' in mode_props) {
-        let is_current = mode_props['is-current'].unpack().get_boolean();
-        if (is_current) {
-          this.current_mode_id = id;
-          break;
-        }
-      }
-    }
-
-    let props = unpacked[2].unpack();
-    if ('is-underscanning' in props) {
-      this.is_underscanning = props['is-underscanning'].unpack().get_boolean();
-    } else {
-      this.is_underscanning = false;
-    }
-    if ('is-builtin' in props) {
-      this.is_builtin = props['is-builtin'].unpack().get_boolean();
-    } else {
-      this.is_builtin = false;
-    }
-  }
-}
-
-export const LogicalMonitor = class LogicalMonitor {
-  constructor(variant) {
-    let unpacked = variant.unpack();
-    this.x = unpacked[0].unpack();
-    this.y = unpacked[1].unpack();
-    this.scale = unpacked[2].unpack();
-    this.transform = unpacked[3].unpack();
-    this.primary = unpacked[4].unpack();
-    // [ [connector, vendor, product, serial]* ]
-    this.monitors = unpacked[5].deep_unpack();
-    this.properties = unpacked[6].unpack();
-    for (let key in this.properties) {
-      this.properties[key] = this.properties[key].unpack().unpack();
-    }
-  }
-}
-
-export const DisplayConfigState = class DisplayConfigState {
+export class DisplayConfigState {
   constructor(result) {
     let unpacked = result.unpack();
 
