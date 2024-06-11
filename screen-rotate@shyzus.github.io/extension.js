@@ -112,7 +112,7 @@ export default class ScreenAutoRotateExtension extends Extension {
   }
 
   _remove_manual_flip() {
-    if (this.flipIndicator != null) {
+    if (this.flipIndicator !== null) {
       this.flipIndicator.destroy();
       this.flipIndicator = null;
     }
