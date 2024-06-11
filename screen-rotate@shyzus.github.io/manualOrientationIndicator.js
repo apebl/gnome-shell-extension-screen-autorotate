@@ -21,9 +21,9 @@ import { ManualOrientationMenuToggle } from './manualOrientationMenuToggle.js';
 
 export const ManualOrientationIndicator = GObject.registerClass(
 class ManualOrientationIndicator extends SystemIndicator {
-    _init(ext_ref) {
-        super._init();
-        this.toggle = new ManualOrientationMenuToggle(ext_ref);
+    constructor(ext) {
+        super();
+        this.toggle = new ManualOrientationMenuToggle(ext);
         this.quickSettingsItems.push(this.toggle);
     }
 

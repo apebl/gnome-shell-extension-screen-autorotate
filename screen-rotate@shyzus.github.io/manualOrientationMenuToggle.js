@@ -21,8 +21,8 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 export const ManualOrientationMenuToggle = GObject.registerClass(
 class ManualOrientationMenuToggle extends QuickMenuToggle {
-    _init(ext) {
-      super._init({
+    constructor(ext) {
+      super({
         title: _('Rotate'),
         iconName: 'object-rotate-left-symbolic',
         menuEnabled: true,
