@@ -55,9 +55,9 @@ export function call_dbus_method(method, params = null, handler) {
 
 export function get_state() {
   return new Promise((resolve, reject) => {
-    call_dbus_method('GetCurrentState', null, (connection, res) => {
+    call_dbus_method('GetCurrentState', null, (conn, res) => {
       try {
-        let reply = connection.call_finish(res);
+        let reply = conn.call_finish(res);
         let configState = new DisplayConfigState(reply)
         resolve(configState);
       } catch (err) {
