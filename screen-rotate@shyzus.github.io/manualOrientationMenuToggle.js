@@ -23,7 +23,7 @@ export const ManualOrientationMenuToggle = GObject.registerClass(
 class ManualOrientationMenuToggle extends QuickMenuToggle {
     constructor(ext) {
       super({
-        title: _('Rotate'),
+        title: 'Rotate',
         iconName: 'object-rotate-left-symbolic',
         menuEnabled: true,
         toggleMode: true,
