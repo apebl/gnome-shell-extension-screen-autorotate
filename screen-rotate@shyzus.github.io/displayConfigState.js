@@ -17,7 +17,6 @@
 */
 
 import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
 import { Monitor } from './monitor.js'
 import { LogicalMonitor } from './logicalMonitor.js'
 
