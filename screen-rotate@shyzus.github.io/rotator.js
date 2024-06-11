@@ -71,7 +71,7 @@ export function get_state() {
 export function rotate_to(transform) {
   this.get_state().then(state => {
     let target_monitor = state.builtin_monitor;
-    if (target_monitor == undefined) {
+    if (target_monitor === undefined) {
       target_monitor = state.monitors[0]
     }
     let logical_monitor = state.get_logical_monitor_for(target_monitor.connector);
