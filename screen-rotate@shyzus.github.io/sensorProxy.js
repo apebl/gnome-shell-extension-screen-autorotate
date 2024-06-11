@@ -64,7 +64,7 @@ export class SensorProxy {
     this._proxy = null;
   }
 
-  properties_changed(proxy, changed, invalidated) {
+  properties_changed(proxy, changed, _invalidated) {
     if (!this._enabled) return;
     let properties = changed.deep_unpack();
     for (let [name, value] of Object.entries(properties)) {
