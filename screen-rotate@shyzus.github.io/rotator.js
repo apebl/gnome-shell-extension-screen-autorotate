@@ -27,7 +27,7 @@ export const Methods = Object.freeze({
 });
 
 export function call_dbus_method(method, handler, params = null) {
-  if (handler != undefined || handler != null) {
+  if (handler !== undefined || handler !== null) {
     connection.call(
       'org.gnome.Mutter.DisplayConfig',
       '/org/gnome/Mutter/DisplayConfig',
