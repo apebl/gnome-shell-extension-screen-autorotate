@@ -26,7 +26,7 @@ export const Methods = Object.freeze({
   'persistent': 2
 });
 
-export function call_dbus_method(method, params = null, handler) {
+export function call_dbus_method(method, handler, params = null) {
   if (handler != undefined || handler != null) {
     connection.call(
       'org.gnome.Mutter.DisplayConfig',
@@ -55,7 +55,7 @@ export function call_dbus_method(method, params = null, handler) {
 
 export function get_state() {
   return new Promise((resolve, reject) => {
-    call_dbus_method('GetCurrentState', null, (conn, res) => {
+    call_dbus_method('GetCurrentState', (conn, res) => {
       try {
         let reply = conn.call_finish(res);
         let configState = new DisplayConfigState(reply)
@@ -77,7 +77,7 @@ export function rotate_to(transform) {
     let logical_monitor = state.get_logical_monitor_for(target_monitor.connector);
     logical_monitor.transform = transform;
     let variant = state.pack_to_apply(this.Methods['temporary']);
-    call_dbus_method('ApplyMonitorsConfig', variant);
+    call_dbus_method('ApplyMonitorsConfig', null, variant);
   }).catch(err => {
     console.error(err);
   })
