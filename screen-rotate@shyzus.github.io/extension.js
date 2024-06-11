@@ -140,7 +140,7 @@ export default class ScreenAutoRotateExtension extends Extension {
 
   _orientation_lock_changed() {
     let locked = this._orientation_settings.get_boolean(ORIENTATION_LOCK_KEY);
-    if (this._state == locked) {
+    if (this._state === locked) {
       this.toggle();
     }
   }
