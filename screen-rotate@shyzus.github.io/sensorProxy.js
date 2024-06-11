@@ -68,7 +68,7 @@ export class SensorProxy {
     if (!this._enabled) return;
     let properties = changed.deep_unpack();
     for (let [name, value] of Object.entries(properties)) {
-      if (name != 'AccelerometerOrientation') continue;
+      if (name !== 'AccelerometerOrientation') continue;
       let target = value.unpack();
       this._rotate_cb(target);
     }
