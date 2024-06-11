@@ -22,7 +22,6 @@ import Gio from 'gi://Gio';
 import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Rotator from './rotator.js'
-import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as KeyboardUI from 'resource:///org/gnome/shell/ui/keyboard.js';
 
 import { Orientation } from './orientation.js';
