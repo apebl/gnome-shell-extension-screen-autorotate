@@ -29,7 +29,7 @@ class ManualOrientationMenuToggle extends QuickMenuToggle {
         toggleMode: true,
       });
 
-      this.menu.setHeader('object-rotate-left-symbolic', _('Screen Rotate'));
+      this.menu.setHeader('object-rotate-left-symbolic', 'Screen Rotate');
 
       this._section = new PopupMenu.PopupMenuSection();
       this.menu.addMenuItem(this._section);
