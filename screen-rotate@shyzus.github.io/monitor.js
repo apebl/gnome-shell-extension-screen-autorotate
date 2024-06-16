@@ -22,8 +22,8 @@ export class Monitor {
     this.connector = unpacked[0].unpack()[0].unpack();
 
     let modes = unpacked[1].unpack();
-    for (let i = 0; i < modes.length; i++) {
-      let mode = modes[i].unpack();
+    for (let mode_idx in modes) {
+      let mode = modes[mode_idx].unpack();
       let id = mode[0].unpack();
       let mode_props = mode[6].unpack();
       if ('is-current' in mode_props) {

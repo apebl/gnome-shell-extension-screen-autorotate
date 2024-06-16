@@ -48,8 +48,7 @@ export class DisplayConfigState {
   }
 
   get builtin_monitor() {
-    for (let i = 0; i < this.monitors.length; i++) {
-      let monitor = this.monitors[i];
+    for (let monitor of this.monitors) {
       if (monitor.is_builtin) {
         return monitor;
       }
@@ -58,8 +57,7 @@ export class DisplayConfigState {
   }
 
   get_monitor(connector) {
-    for (let i = 0; i < this.monitors.length; i++) {
-      let monitor = this.monitors[i];
+    for (let monitor of this.monitors) {
       if (monitor.connector === connector) {
         return monitor;
       }
@@ -68,12 +66,10 @@ export class DisplayConfigState {
   }
 
   get_logical_monitor_for(connector) {
-    for (let i = 0; i < this.logical_monitors.length; i++) {
-      let lmonitor = this.logical_monitors[i];
-      for (let j = 0; j < lmonitor.monitors.length; j++) {
-        let lm_connector = lmonitor.monitors[j][0];
-        if (connector === lm_connector) {
-          return lmonitor;
+    for (let log_monitor of this.logical_monitors) {
+      for (let lm_monitor of log_monitor.monitors) {
+        if (connector === lm_monitor[0]) {
+          return log_monitor;
         }
       }
     }
@@ -95,8 +91,8 @@ export class DisplayConfigState {
         []
       ];
       let monitors = lmonitor_pack[5];
-      for (let i = 0; i < lmonitor.monitors.length; i++) {
-        let connector = lmonitor.monitors[i][0];
+      for (let log_monitor of lmonitor.monitors) {
+        let connector = log_monitor[0];
         let monitor = this.get_monitor(connector);
         monitors.push([
           connector,
